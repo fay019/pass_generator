@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+&Scoped-define WINDOW-NAME pass-generator
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS pass-generator 
 /*------------------------------------------------------------------------
 
   File: 
@@ -67,7 +67,7 @@ i-choice-symb i-result i-length
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR pass-generator AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-copy 
@@ -83,7 +83,7 @@ DEFINE BUTTON btn-generate
      SIZE 15 BY 1.12.
 
 DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER 
-     VIEW-AS EDITOR LARGE NO-BOX
+     VIEW-AS EDITOR NO-BOX
      SIZE 59 BY 2.15
      FONT 0 DROP-TARGET NO-UNDO.
 
@@ -101,17 +101,17 @@ DEFINE VARIABLE i-slider AS INTEGER INITIAL 4
      TIC-MARKS NONE 
      SIZE 34 BY 2.19 NO-UNDO.
 
-DEFINE VARIABLE i-choice-09 AS LOGICAL INITIAL no 
+DEFINE VARIABLE i-choice-09 AS LOGICAL INITIAL yes 
      LABEL "Use digits (0-9)" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE i-choice-az AS LOGICAL INITIAL no 
+DEFINE VARIABLE i-choice-az AS LOGICAL INITIAL yes 
      LABEL "Use capital letters (A-Z)" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL no 
+DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL yes 
      LABEL "Use symbols (@!$%&*...)" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
@@ -133,7 +133,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 64.14 BY 12.38 WIDGET-ID 100.
+         SIZE 64.14 BY 12.35 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -150,14 +150,14 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
+  CREATE WINDOW pass-generator ASSIGN
          HIDDEN             = YES
          TITLE              = "Passwort-Generator"
-         HEIGHT             = 13.69
-         WIDTH              = 69.43
-         MAX-HEIGHT         = 16
+         HEIGHT             = 12.58
+         WIDTH              = 67
+         MAX-HEIGHT         = 21.58
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16
+         VIRTUAL-HEIGHT     = 21.58
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -171,7 +171,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("adeicon/comp%.ico":U) THEN
+IF NOT pass-generator:LOAD-ICON("adeicon/comp%.ico":U) THEN
     MESSAGE "Unable to load icon: adeicon/comp%.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
@@ -183,7 +183,7 @@ IF NOT C-Win:LOAD-ICON("adeicon/comp%.ico":U) THEN
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-Win
+/* SETTINGS FOR WINDOW pass-generator
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
@@ -203,8 +203,8 @@ ASSIGN
 ASSIGN 
        i-slider:AUTO-RESIZE IN FRAME DEFAULT-FRAME      = TRUE.
 
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(pass-generator)
+THEN pass-generator:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -215,9 +215,9 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Passwort-Generator */
+&Scoped-define SELF-NAME pass-generator
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pass-generator pass-generator
+ON END-ERROR OF pass-generator /* Passwort-Generator */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -229,8 +229,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Passwort-Generator */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pass-generator pass-generator
+ON WINDOW-CLOSE OF pass-generator /* Passwort-Generator */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -242,7 +242,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy pass-generator
 ON CHOOSE OF btn-copy IN FRAME DEFAULT-FRAME /* Copy */
 DO:
    CLIPBOARD:VALUE = i-result:SCREEN-VALUE.
@@ -256,7 +256,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-exit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exit C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exit pass-generator
 ON CHOOSE OF btn-exit IN FRAME DEFAULT-FRAME /* Close App */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -268,7 +268,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-generate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-generate C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-generate pass-generator
 ON CHOOSE OF btn-generate IN FRAME DEFAULT-FRAME /* Generate */
 DO:
   RUN p-generator.
@@ -280,7 +280,7 @@ END.
 
 &Scoped-define SELF-NAME i-length
 &Scoped-define SELF-NAME i-slider
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL i-slider C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL i-slider pass-generator
 ON VALUE-CHANGED OF i-slider IN FRAME DEFAULT-FRAME
 DO:
    ASSIGN 
@@ -293,7 +293,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK pass-generator 
 
 
 /* ***************************  Main Block  *************************** */
@@ -326,7 +326,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI pass-generator  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -337,15 +337,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(pass-generator)
+  THEN DELETE WIDGET pass-generator.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI pass-generator  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -357,18 +357,18 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY i-slider i-choice-az i-choice-09 i-choice-symb i-result i-length 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+      WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
   ENABLE RECT-1 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
          i-choice-symb i-result i-length 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+      WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+  VIEW pass-generator.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE p-generator C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE p-generator pass-generator 
 PROCEDURE p-generator :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -376,10 +376,27 @@ PROCEDURE p-generator :
   Notes:       
 ------------------------------------------------------------------------------*/
 DO WITH FRAME {&FRAME-NAME}:
-   i-result:SCREEN-VALUE = "qwertzuiopÅ+asdfghjklîÑ#<yxcvbnm,.-1234567890·qwertzuiopasdfghjklîyxcvbnmasdf".
+   DEF VAR hf-i     AS INT NO-UNDO.
+   DEF VAR hf-temp  AS CHAR NO-UNDO. 
+   ASSIGN hf-temp = "abcdefghijklmnopqrstuvwxyz".
    
+   IF i-choice-az:CHECKED = TRUE THEN
+      ASSIGN hf-temp = hf-temp + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+   IF i-choice-09:CHECKED = TRUE THEN
+      ASSIGN hf-temp = hf-temp + "0123456789". 
+   IF i-choice-symb:CHECKED = TRUE THEN
+      ASSIGN hf-temp = hf-temp + "!~"#$%&'()*+,-./:;<=>?@[/]^_`~{|~}~~".    
+      
+      
+   ASSIGN i-result:SCREEN-VALUE = "".
+   
+   DO hf-i = 1 TO INTEGER(i-length:SCREEN-VALUE):
+      ASSIGN i-result:SCREEN-VALUE = i-result:SCREEN-VALUE +  SUBSTRING(hf-temp, RANDOM(1, LENGTH(hf-temp)), 1).           
+   END.
+    
    // Button Copy enable
    ENABLE btn-copy WITH FRAME {&FRAME-NAME}.
+   i-result:SENSITIVE = TRUE.  
 END.
 END PROCEDURE.
 
