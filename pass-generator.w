@@ -51,10 +51,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 i-slider i-choice-az btn-exit ~
-i-choice-09 btn-generate i-choice-symb i-result i-length 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-slider i-choice-az btn-exit ~
+i-choice-09 btn-generate i-choice-symb i-result i-length t-copy 
 &Scoped-Define DISPLAYED-OBJECTS i-slider i-choice-az i-choice-09 ~
-i-choice-symb i-result i-length 
+i-choice-symb i-result i-length t-copy 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -84,7 +84,7 @@ DEFINE BUTTON btn-generate
 
 DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER 
      VIEW-AS EDITOR NO-BOX
-     SIZE 59 BY 2.15
+     SIZE 53 BY 2.15
      FONT 0 DROP-TARGET NO-UNDO.
 
 DEFINE VARIABLE i-length AS INTEGER FORMAT "->9":U INITIAL 4 
@@ -92,14 +92,22 @@ DEFINE VARIABLE i-length AS INTEGER FORMAT "->9":U INITIAL 4
       VIEW-AS TEXT 
      SIZE 4 BY .62 NO-UNDO.
 
+DEFINE VARIABLE t-copy AS CHARACTER FORMAT "X(256)":U INITIAL "Text in Zwischenablage kopiert" 
+      VIEW-AS TEXT 
+     SIZE 30 BY .62 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 61 BY 11.31.
+     SIZE 56 BY 13.12.
+
+DEFINE RECTANGLE RECT-13
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 56 BY 1.62.
 
 DEFINE VARIABLE i-slider AS INTEGER INITIAL 4 
      VIEW-AS SLIDER MIN-VALUE 4 MAX-VALUE 60 HORIZONTAL NO-CURRENT-VALUE 
      TIC-MARKS NONE 
-     SIZE 34 BY 2.19 NO-UNDO.
+     SIZE 42 BY 1.31 NO-UNDO.
 
 DEFINE VARIABLE i-choice-09 AS LOGICAL INITIAL yes 
      LABEL "Use digits (0-9)" 
@@ -120,20 +128,27 @@ DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     i-slider AT ROW 1.54 COL 14 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
-     i-choice-az AT ROW 4.5 COL 3 WIDGET-ID 6
-     btn-exit AT ROW 5.85 COL 41 WIDGET-ID 16
-     i-choice-09 AT ROW 6 COL 3 WIDGET-ID 8
-     btn-generate AT ROW 7.46 COL 41 WIDGET-ID 14
-     i-choice-symb AT ROW 7.5 COL 3 WIDGET-ID 10
-     btn-copy AT ROW 9.08 COL 4 WIDGET-ID 20
-     i-result AT ROW 10.15 COL 3 NO-LABEL WIDGET-ID 22
-     i-length AT ROW 2.65 COL 7.29 COLON-ALIGNED WIDGET-ID 4
+     i-slider AT ROW 4.12 COL 14 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
+     i-choice-az AT ROW 6.23 COL 3 WIDGET-ID 6
+     btn-exit AT ROW 7.58 COL 41 WIDGET-ID 16
+     i-choice-09 AT ROW 7.73 COL 3 WIDGET-ID 8
+     btn-generate AT ROW 9.19 COL 41 WIDGET-ID 14
+     i-choice-symb AT ROW 9.23 COL 3 WIDGET-ID 10
+     btn-copy AT ROW 10.81 COL 4 WIDGET-ID 20
+     i-result AT ROW 11.88 COL 3 NO-LABEL WIDGET-ID 22
+     i-length AT ROW 4.38 COL 7.29 COLON-ALIGNED WIDGET-ID 4
+     t-copy AT ROW 10.88 COL 11.86 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     "min. 4 und max. 60 Zeichen" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 3.15 COL 33 WIDGET-ID 32
+     "Passwort-Generator" VIEW-AS TEXT
+          SIZE 22 BY 1.08 AT ROW 1.58 COL 20.14 WIDGET-ID 28
+          FONT 0
      RECT-1 AT ROW 1.35 COL 1.86 WIDGET-ID 12
+     RECT-13 AT ROW 3.96 COL 1.86 WIDGET-ID 30
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 64.14 BY 12.35 WIDGET-ID 100.
+         SIZE 58.14 BY 13.88 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -153,8 +168,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW pass-generator ASSIGN
          HIDDEN             = YES
          TITLE              = "Passwort-Generator"
-         HEIGHT             = 12.58
-         WIDTH              = 67
+         HEIGHT             = 14.15
+         WIDTH              = 58.86
          MAX-HEIGHT         = 21.58
          MAX-WIDTH          = 80
          VIRTUAL-HEIGHT     = 21.58
@@ -203,6 +218,9 @@ ASSIGN
 ASSIGN 
        i-slider:AUTO-RESIZE IN FRAME DEFAULT-FRAME      = TRUE.
 
+ASSIGN 
+       t-copy:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(pass-generator)
 THEN pass-generator:HIDDEN = no.
 
@@ -247,8 +265,9 @@ ON CHOOSE OF btn-copy IN FRAME DEFAULT-FRAME /* Copy */
 DO:
    CLIPBOARD:VALUE = i-result:SCREEN-VALUE.
    DISABLE btn-copy WITH FRAME {&FRAME-NAME}.
-   ASSIGN btn-copy:HIDDEN = TRUE.
-   ASSIGN i-result:BGCOLOR = 1.
+   ASSIGN 
+      btn-copy:HIDDEN = TRUE
+      t-copy:HIDDEN = FALSE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,6 +335,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+  ASSIGN t-copy:HIDDEN = TRUE.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -357,9 +377,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY i-slider i-choice-az i-choice-09 i-choice-symb i-result i-length 
+          t-copy 
       WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
-  ENABLE RECT-1 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
-         i-choice-symb i-result i-length 
+  ENABLE RECT-1 RECT-13 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
+         i-choice-symb i-result i-length t-copy 
       WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW pass-generator.
@@ -395,6 +416,7 @@ DO WITH FRAME {&FRAME-NAME}:
    END.
     
    // Button Copy enable
+   ASSIGN t-copy:HIDDEN = TRUE.
    ENABLE btn-copy WITH FRAME {&FRAME-NAME}.
    i-result:SENSITIVE = TRUE.  
 END.
