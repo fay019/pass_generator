@@ -20,7 +20,7 @@ create mask for the Procedure.
 - [@Faycal Moussouni](https://www.wko.at/service/mitarbeiter.html?id=4347386)
 ## To-Do
 
-- [ ]  - create mask
+- [x]  - create mask
 - [ ]  - creat widget input
 - [ ]  - creat procedure generator
 - [ ]  - create widget output
