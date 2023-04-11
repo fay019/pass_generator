@@ -38,8 +38,15 @@ DEFINE TEMP-TABLE tt-lang NO-UNDO
     FIELD hf-lang AS CHARACTER
     FIELD hf-title AS CHARACTER
     FIELD hf-minmax AS CHARACTER
-    FIELD hf-lenght AS CHARACTER
+    FIELD hf-lenght AS CHARACTER 
     FIELD hf-az AS CHARACTER
+    FIELD hf-degit AS CHARACTER
+    FIELD hf-symbol AS CHARACTER
+    FIELD hf-t-copy AS CHARACTER
+    FIELD hf-btn-close AS CHARACTER
+    FIELD hf-btn-generate AS CHARACTER
+    FIELD hf-btn-copy AS CHARACTER
+    FIELD hf-btn-clear AS CHARACTER
     INDEX idxLang IS PRIMARY hf-lang.
 
 CREATE tt-lang.
@@ -50,7 +57,14 @@ ASSIGN
    tt-lang.hf-title = "Password generator"
    tt-lang.hf-minmax = "min. 4 and max. 60 chars"
    tt-lang.hf-lenght = "Length"
-   tt-lang.hf-az = "Use capital letters (A-Z)".
+   tt-lang.hf-az = "Use capital letters (A-Z)"
+   tt-lang.hf-degit = "Use digits (0-9)"
+   tt-lang.hf-symbol = "Use symbols (@!$%&*...)"
+   tt-lang.hf-t-copy = "Text copied to clipboard"
+   tt-lang.hf-btn-close = "Close APP"
+   tt-lang.hf-btn-generate = "Generate"
+   tt-lang.hf-btn-copy = "Copy"
+   tt-lang.hf-btn-clear = "Clear".
 
 /* Ajouter des valeurs pour "de" */
 CREATE tt-lang.
@@ -59,7 +73,14 @@ ASSIGN
    tt-lang.hf-title = "Passwort-Generator"
    tt-lang.hf-minmax = "min. 4 und max. 60 Zeichen"
    tt-lang.hf-lenght = "L„nge"
-   tt-lang.hf-az = "Groábuchstaben verwenden (A-Z)".
+   tt-lang.hf-az = "Groábuchstaben verwenden (A-Z)"
+   tt-lang.hf-degit = "Ziffern verwenden (0-9)"
+   tt-lang.hf-symbol = "Symbole verwenden (@!$%&*...)"
+   tt-lang.hf-t-copy = "Text in Zwischenablage kopiert"
+   tt-lang.hf-btn-close = "App schlieáen"
+   tt-lang.hf-btn-generate = "Erzeugen"
+   tt-lang.hf-btn-copy = "kopieren"
+   tt-lang.hf-btn-clear = "L”schen".
    
 /* Ajouter des valeurs pour "fr" */
 CREATE tt-lang.
@@ -68,7 +89,14 @@ ASSIGN
    tt-lang.hf-title = "G‚n‚rateur de mot de passe"
    tt-lang.hf-minmax = "min. 4 et max. 60 caractŠres"
    tt-lang.hf-lenght = "Longueur"
-   tt-lang.hf-az = "Utiliser des lettres majuscules (A-Z)".
+   tt-lang.hf-az = "Utiliser des lettres majuscules (A-Z)"
+   tt-lang.hf-degit = "Utiliser des chiffres (0-9)"
+   tt-lang.hf-symbol = "Utiliser des symboles (@!$%&*...)"
+   tt-lang.hf-t-copy = "Texte copi‚ dans le presse-papiers"
+   tt-lang.hf-btn-close = "Fermer APP"
+   tt-lang.hf-btn-generate = "G‚n‚rer"
+   tt-lang.hf-btn-copy = "Copier"
+   tt-lang.hf-btn-clear = "Effacer".
 
 /* Acc‚der aux valeurs pour "en" */
 /* FIND FIRST tt-lang WHERE tt-lang.hf-lang = "de" NO-LOCK NO-ERROR. */
@@ -91,10 +119,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-lang i-slider i-choice-az ~
-btn-exit i-choice-09 btn-generate i-choice-symb i-result i-title i-minmax ~
+btn-exit i-choice-09 btn-generate i-choice-symb i-result t-title t-minmax ~
 i-length t-copy 
 &Scoped-Define DISPLAYED-OBJECTS i-lang i-slider i-choice-az i-choice-09 ~
-i-choice-symb i-result i-title i-minmax i-length t-copy 
+i-choice-symb i-result t-title t-minmax i-length t-copy 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,22 +139,22 @@ DEFINE VAR pass-generator AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-clear 
-     LABEL "Clear" 
-     SIZE 9 BY .81.
+     LABEL "L”schen" 
+     SIZE 10.43 BY .81.
 
 DEFINE BUTTON btn-copy 
-     LABEL "Copy" 
-     SIZE 9 BY .81.
+     LABEL "kopieren" 
+     SIZE 10 BY .81.
 
 DEFINE BUTTON btn-exit 
-     LABEL "Close App" 
+     LABEL "App schlieáen" 
      SIZE 15 BY 1.12.
 
 DEFINE BUTTON btn-generate 
-     LABEL "Generate" 
+     LABEL "Erzeugen" 
      SIZE 15 BY 1.12.
 
-DEFINE VARIABLE i-lang AS CHARACTER FORMAT "X(256)":U INITIAL "en" 
+DEFINE VARIABLE i-lang AS CHARACTER FORMAT "X(256)":U INITIAL "de" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "EN","en",
                      "DE","de",
@@ -140,22 +168,22 @@ DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER INITIAL ?
      FONT 0 DROP-TARGET NO-UNDO.
 
 DEFINE VARIABLE i-length AS INTEGER FORMAT "->9":U INITIAL 4 
-     LABEL "Length" 
+     LABEL "L„nge" 
       VIEW-AS TEXT 
      SIZE 4 BY .62 NO-UNDO.
 
-DEFINE VARIABLE i-minmax AS CHARACTER FORMAT "X(256)":U INITIAL "min. 4 et max. 60 caractŠres" 
+DEFINE VARIABLE t-copy AS CHARACTER FORMAT "X(256)":U INITIAL "Text in Zwischenablage kopiert" 
+      VIEW-AS TEXT 
+     SIZE 31.14 BY .62 NO-UNDO.
+
+DEFINE VARIABLE t-minmax AS CHARACTER FORMAT "X(256)":U INITIAL "min. 4 und max. 60 Zeichen" 
       VIEW-AS TEXT 
      SIZE 30 BY .88 NO-UNDO.
 
-DEFINE VARIABLE i-title AS CHARACTER FORMAT "X(256)":U INITIAL "G‚n‚rateur de mot de passe" 
+DEFINE VARIABLE t-title AS CHARACTER FORMAT "X(256)":U INITIAL "Passwort-Generator" 
       VIEW-AS TEXT 
      SIZE 33 BY 1.08
      FONT 0 NO-UNDO.
-
-DEFINE VARIABLE t-copy AS CHARACTER FORMAT "X(256)":U INITIAL "Text in Zwischenablage kopiert" 
-      VIEW-AS TEXT 
-     SIZE 30 BY .62 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -168,20 +196,20 @@ DEFINE RECTANGLE RECT-13
 DEFINE VARIABLE i-slider AS INTEGER INITIAL 4 
      VIEW-AS SLIDER MIN-VALUE 4 MAX-VALUE 60 HORIZONTAL NO-CURRENT-VALUE 
      TIC-MARKS NONE 
-     SIZE 42 BY 1.31 NO-UNDO.
+     SIZE 39 BY 1.31 NO-UNDO.
 
 DEFINE VARIABLE i-choice-09 AS LOGICAL INITIAL yes 
-     LABEL "Use digits (0-9)" 
+     LABEL "Ziffern verwenden (0-9)" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE i-choice-az AS LOGICAL INITIAL yes 
-     LABEL "Use capital letters (A-Z)" 
+     LABEL "Groábuchstaben verwenden (A-Z)" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1.1 NO-UNDO.
 
 DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL yes 
-     LABEL "Use symbols (@!$%&*...)" 
+     LABEL "Symbole verwenden (@!$%&*...)" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
@@ -190,18 +218,18 @@ DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL yes
 
 DEFINE FRAME F-Main
      i-lang AT ROW 1.54 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     i-slider AT ROW 4.12 COL 14 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
+     i-slider AT ROW 4.12 COL 17 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
      i-choice-az AT ROW 6.23 COL 3 WIDGET-ID 6
      btn-exit AT ROW 7.58 COL 41 WIDGET-ID 16
      i-choice-09 AT ROW 7.73 COL 3 WIDGET-ID 8
      btn-generate AT ROW 9.19 COL 41 WIDGET-ID 14
      i-choice-symb AT ROW 9.23 COL 3 WIDGET-ID 10
-     btn-copy AT ROW 10.81 COL 4 WIDGET-ID 20
-     btn-clear AT ROW 10.81 COL 53.5 RIGHT-ALIGNED WIDGET-ID 34
+     btn-copy AT ROW 10.81 COL 3 WIDGET-ID 20
+     btn-clear AT ROW 10.81 COL 55 RIGHT-ALIGNED WIDGET-ID 34
      i-result AT ROW 11.88 COL 3 NO-LABEL WIDGET-ID 22
-     i-title AT ROW 1.62 COL 22 COLON-ALIGNED NO-LABEL WIDGET-ID 40
-     i-minmax AT ROW 2.88 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
-     i-length AT ROW 4.38 COL 7.29 COLON-ALIGNED WIDGET-ID 4
+     t-title AT ROW 1.62 COL 22 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     t-minmax AT ROW 2.88 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+     i-length AT ROW 4.38 COL 10.43 COLON-ALIGNED WIDGET-ID 4
      t-copy AT ROW 10.88 COL 11.86 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      RECT-1 AT ROW 1.35 COL 1.86 WIDGET-ID 12
      RECT-13 AT ROW 3.96 COL 1.86 WIDGET-ID 30
@@ -275,9 +303,6 @@ ASSIGN
 ASSIGN 
        i-length:READ-ONLY IN FRAME F-Main        = TRUE.
 
-ASSIGN 
-       i-minmax:READ-ONLY IN FRAME F-Main        = TRUE.
-
 /* SETTINGS FOR EDITOR i-result IN FRAME F-Main
    SHARED                                                               */
 ASSIGN 
@@ -287,10 +312,13 @@ ASSIGN
        i-slider:AUTO-RESIZE IN FRAME F-Main      = TRUE.
 
 ASSIGN 
-       i-title:READ-ONLY IN FRAME F-Main        = TRUE.
+       t-copy:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
-       t-copy:HIDDEN IN FRAME F-Main           = TRUE.
+       t-minmax:READ-ONLY IN FRAME F-Main        = TRUE.
+
+ASSIGN 
+       t-title:READ-ONLY IN FRAME F-Main        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(pass-generator)
 THEN pass-generator:HIDDEN = no.
@@ -332,7 +360,7 @@ END.
 
 &Scoped-define SELF-NAME btn-clear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-clear pass-generator
-ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear */
+ON CHOOSE OF btn-clear IN FRAME F-Main /* L”schen */
 DO:
   RUN p-Clear.
 END.
@@ -343,7 +371,7 @@ END.
 
 &Scoped-define SELF-NAME btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy pass-generator
-ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy */
+ON CHOOSE OF btn-copy IN FRAME F-Main /* kopieren */
 DO:
    CLIPBOARD:VALUE = i-result:SCREEN-VALUE.
    DISABLE btn-copy WITH FRAME {&FRAME-NAME}.
@@ -364,7 +392,7 @@ END.
 
 &Scoped-define SELF-NAME btn-exit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exit pass-generator
-ON CHOOSE OF btn-exit IN FRAME F-Main /* Close App */
+ON CHOOSE OF btn-exit IN FRAME F-Main /* App schlieáen */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY. 
@@ -376,7 +404,7 @@ END.
 
 &Scoped-define SELF-NAME btn-generate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-generate pass-generator
-ON CHOOSE OF btn-generate IN FRAME F-Main /* Generate */
+ON CHOOSE OF btn-generate IN FRAME F-Main /* Erzeugen */
 DO:
   RUN p-Generator.
 END.
@@ -391,10 +419,18 @@ ON VALUE-CHANGED OF i-lang IN FRAME F-Main /* Combo 1 */
 DO:
    FIND FIRST tt-lang WHERE tt-lang.hf-lang = i-lang:SCREEN-VALUE NO-LOCK NO-ERROR.
       IF NOT AVAILABLE tt-lang THEN LEAVE.
-      i-title:SCREEN-VALUE = tt-lang.hf-title.
-      i-minmax:SCREEN-VALUE = tt-lang.hf-minmax.
-      i-length:LABEL = tt-lang.hf-lenght.
-      i-choice-az:LABEL = tt-lang.hf-az.
+      ASSIGN 
+         t-title:SCREEN-VALUE = tt-lang.hf-title
+         t-minmax:SCREEN-VALUE = tt-lang.hf-minmax
+         i-length:LABEL = tt-lang.hf-lenght
+         i-choice-az:LABEL = tt-lang.hf-az     
+         i-choice-09:LABEL = tt-lang.hf-degit
+         i-choice-symb:LABEL = tt-lang.hf-symbol
+         t-copy:SCREEN-VALUE = tt-lang.hf-t-copy
+         btn-exit:LABEL = tt-lang.hf-btn-close
+         btn-generate:LABEL = tt-lang.hf-btn-generate
+         btn-copy:LABEL = tt-lang.hf-btn-copy
+         btn-clear:LABEL = tt-lang.hf-btn-clear.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,11 +524,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY i-lang i-slider i-choice-az i-choice-09 i-choice-symb i-result i-title 
-          i-minmax i-length t-copy 
+  DISPLAY i-lang i-slider i-choice-az i-choice-09 i-choice-symb i-result t-title 
+          t-minmax i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   ENABLE RECT-1 RECT-13 i-lang i-slider i-choice-az btn-exit i-choice-09 
-         btn-generate i-choice-symb i-result i-title i-minmax i-length t-copy 
+         btn-generate i-choice-symb i-result t-title t-minmax i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW pass-generator.
