@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 &Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-slider i-choice-az btn-exit ~
@@ -127,7 +127,7 @@ DEFINE VARIABLE i-choice-symb AS LOGICAL INITIAL yes
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME DEFAULT-FRAME
+DEFINE FRAME F-Main
      i-slider AT ROW 4.12 COL 14 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
      i-choice-az AT ROW 6.23 COL 3 WIDGET-ID 6
      btn-exit AT ROW 7.58 COL 41 WIDGET-ID 16
@@ -200,26 +200,26 @@ IF NOT pass-generator:LOAD-ICON("adeicon/comp%.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW pass-generator
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME DEFAULT-FRAME
+/* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* SETTINGS FOR BUTTON btn-copy IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR BUTTON btn-copy IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
-       btn-copy:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+       btn-copy:HIDDEN IN FRAME F-Main           = TRUE.
 
 ASSIGN 
-       i-length:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       i-length:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR EDITOR i-result IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR EDITOR i-result IN FRAME F-Main
    SHARED                                                               */
 ASSIGN 
-       i-result:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       i-result:READ-ONLY IN FRAME F-Main        = TRUE.
 
 ASSIGN 
-       i-slider:AUTO-RESIZE IN FRAME DEFAULT-FRAME      = TRUE.
+       i-slider:AUTO-RESIZE IN FRAME F-Main      = TRUE.
 
 ASSIGN 
-       t-copy:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+       t-copy:HIDDEN IN FRAME F-Main           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(pass-generator)
 THEN pass-generator:HIDDEN = no.
@@ -261,7 +261,7 @@ END.
 
 &Scoped-define SELF-NAME btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy pass-generator
-ON CHOOSE OF btn-copy IN FRAME DEFAULT-FRAME /* Copy */
+ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy */
 DO:
    CLIPBOARD:VALUE = i-result:SCREEN-VALUE.
    DISABLE btn-copy WITH FRAME {&FRAME-NAME}.
@@ -282,7 +282,7 @@ END.
 
 &Scoped-define SELF-NAME btn-exit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exit pass-generator
-ON CHOOSE OF btn-exit IN FRAME DEFAULT-FRAME /* Close App */
+ON CHOOSE OF btn-exit IN FRAME F-Main /* Close App */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY. 
@@ -294,7 +294,7 @@ END.
 
 &Scoped-define SELF-NAME btn-generate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-generate pass-generator
-ON CHOOSE OF btn-generate IN FRAME DEFAULT-FRAME /* Generate */
+ON CHOOSE OF btn-generate IN FRAME F-Main /* Generate */
 DO:
   RUN p-generator.
 END.
@@ -305,7 +305,7 @@ END.
 
 &Scoped-define SELF-NAME i-slider
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL i-slider pass-generator
-ON VALUE-CHANGED OF i-slider IN FRAME DEFAULT-FRAME
+ON VALUE-CHANGED OF i-slider IN FRAME F-Main
 DO:
    ASSIGN 
       i-length:SCREEN-VALUE = i-slider:SCREEN-VALUE.
@@ -383,11 +383,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY i-slider i-choice-az i-choice-09 i-choice-symb i-result i-length 
           t-copy 
-      WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
+      WITH FRAME F-Main IN WINDOW pass-generator.
   ENABLE RECT-1 RECT-13 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
          i-choice-symb i-result i-length t-copy 
-      WITH FRAME DEFAULT-FRAME IN WINDOW pass-generator.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+      WITH FRAME F-Main IN WINDOW pass-generator.
+  {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW pass-generator.
 END PROCEDURE.
 
