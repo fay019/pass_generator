@@ -52,7 +52,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-slider i-choice-az btn-exit ~
-i-choice-09 btn-generate i-choice-symb btn-clear i-result i-length t-copy 
+i-choice-09 btn-generate i-choice-symb i-result i-length t-copy 
 &Scoped-Define DISPLAYED-OBJECTS i-slider i-choice-az i-choice-09 ~
 i-choice-symb i-result i-length t-copy 
 
@@ -208,7 +208,7 @@ IF NOT pass-generator:LOAD-ICON("adeicon/comp%.ico":U) THEN
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON btn-clear IN FRAME F-Main
-   ALIGN-R                                                              */
+   NO-ENABLE ALIGN-R                                                    */
 ASSIGN 
        btn-clear:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -415,7 +415,7 @@ PROCEDURE enable_UI :
           t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   ENABLE RECT-1 RECT-13 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
-         i-choice-symb btn-clear i-result i-length t-copy 
+         i-choice-symb i-result i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW pass-generator.
@@ -474,7 +474,7 @@ DO WITH FRAME {&FRAME-NAME}:
    END.
    
    //Enlarge the main frame
-   ASSIGN    
+   ASSIGN             
       RECT-1:HEIGHT = 12.80
       pass-generator:HEIGHT = 13.5.
    // Button Copy enable
@@ -482,6 +482,7 @@ DO WITH FRAME {&FRAME-NAME}:
       t-copy:HIDDEN = TRUE
       btn-clear:HIDDEN = FALSE.
    ENABLE btn-copy WITH FRAME {&FRAME-NAME}.
+   ENABLE btn-clear WITH FRAME {&FRAME-NAME}.
    i-result:SENSITIVE = TRUE.  
 END.
 END PROCEDURE.
