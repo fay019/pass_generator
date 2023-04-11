@@ -2,6 +2,7 @@
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME pass-generator
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS pass-generator 
+Using System.Text.RegularExpressions.*. 
 /*------------------------------------------------------------------------
 
   File: 
@@ -28,12 +29,14 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 CREATE WIDGET-POOL.
-
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
+DEF VAR hf-strong-lvl AS INT NO-UNDO.
+
 DEFINE TEMP-TABLE tt-lang NO-UNDO
     FIELD hf-lang AS CHARACTER
     FIELD hf-title AS CHARACTER
@@ -47,6 +50,11 @@ DEFINE TEMP-TABLE tt-lang NO-UNDO
     FIELD hf-btn-generate AS CHARACTER
     FIELD hf-btn-copy AS CHARACTER
     FIELD hf-btn-clear AS CHARACTER
+    FIELD hf-very-weak AS CHARACTER
+    FIELD hf-weak AS CHARACTER 
+    FIELD hf-medium AS CHARACTER
+    FIELD hf-strong AS CHARACTER
+    FIELD hf-very-strong AS CHARACTER
     INDEX idxLang IS PRIMARY hf-lang.
 
 CREATE tt-lang.
@@ -64,7 +72,12 @@ ASSIGN
    tt-lang.hf-btn-close = "Close APP"
    tt-lang.hf-btn-generate = "Generate"
    tt-lang.hf-btn-copy = "Copy"
-   tt-lang.hf-btn-clear = "Clear".
+   tt-lang.hf-btn-clear = "Clear"
+   tt-lang.hf-very-weak = "Very weak"
+   tt-lang.hf-weak = "Weak"
+   tt-lang.hf-medium = "Medium"
+   tt-lang.hf-strong = "Strong"
+   tt-lang.hf-very-strong = "Very strong".
 
 /* Ajouter des valeurs pour "de" */
 CREATE tt-lang.
@@ -80,7 +93,12 @@ ASSIGN
    tt-lang.hf-btn-close = "App schlieáen"
    tt-lang.hf-btn-generate = "Erzeugen"
    tt-lang.hf-btn-copy = "kopieren"
-   tt-lang.hf-btn-clear = "L”schen".
+   tt-lang.hf-btn-clear = "L”schen"
+   tt-lang.hf-very-weak = "Sehr schwach"
+   tt-lang.hf-weak = "Schwach"
+   tt-lang.hf-medium = "Mittel"
+   tt-lang.hf-strong = "Stark"
+   tt-lang.hf-very-strong = "Sehr stark".
    
 /* Ajouter des valeurs pour "fr" */
 CREATE tt-lang.
@@ -96,12 +114,18 @@ ASSIGN
    tt-lang.hf-btn-close = "Fermer APP"
    tt-lang.hf-btn-generate = "G‚n‚rer"
    tt-lang.hf-btn-copy = "Copier"
-   tt-lang.hf-btn-clear = "Effacer".
+   tt-lang.hf-btn-clear = "Effacer"
+   tt-lang.hf-very-weak = "TrŠs faible"
+   tt-lang.hf-weak = "Faible "
+   tt-lang.hf-medium = "Moyen "
+   tt-lang.hf-strong = "Fort"
+   tt-lang.hf-very-strong = "TrŠs fort".
 
-/* Acc‚der aux valeurs pour "en" */
-/* FIND FIRST tt-lang WHERE tt-lang.hf-lang = "de" NO-LOCK NO-ERROR. */
-/* IF NOT AVAILABLE tt-lang THEN LEAVE.                              */
-/*    MESSAGE tt-lang.hf-title VIEW-AS ALERT-BOX.                    */
+
+FIND FIRST tt-lang WHERE tt-lang.hf-lang = "de" NO-LOCK NO-ERROR. 
+IF NOT AVAILABLE tt-lang THEN LEAVE.                                 
+
+ASSIGN hf-strong-lvl = 5.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -118,9 +142,9 @@ ASSIGN
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-lang i-slider i-choice-az ~
-btn-exit i-choice-09 btn-generate i-choice-symb i-result t-title t-minmax ~
-i-length t-copy 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 strong-bar-1 strong-bar-2 ~
+i-lang i-slider i-choice-az btn-exit i-choice-09 btn-generate i-choice-symb ~
+i-result t-title t-minmax i-length t-copy 
 &Scoped-Define DISPLAYED-OBJECTS i-lang i-slider i-choice-az i-choice-09 ~
 i-choice-symb i-result t-title t-minmax i-length t-copy 
 
@@ -130,6 +154,15 @@ i-choice-symb i-result t-title t-minmax i-length t-copy
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD password-lvl pass-generator 
+FUNCTION password-lvl RETURNS INTEGER
+  ( INPUT pass AS CHAR)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -180,6 +213,11 @@ DEFINE VARIABLE t-minmax AS CHARACTER FORMAT "X(256)":U INITIAL "min. 4 und max.
       VIEW-AS TEXT 
      SIZE 30 BY .88 NO-UNDO.
 
+DEFINE VARIABLE t-strong AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 13 BY .62
+     FONT 0 NO-UNDO.
+
 DEFINE VARIABLE t-title AS CHARACTER FORMAT "X(256)":U INITIAL "Passwort-Generator" 
       VIEW-AS TEXT 
      SIZE 33 BY 1.08
@@ -192,6 +230,14 @@ DEFINE RECTANGLE RECT-1
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 56 BY 1.62.
+
+DEFINE RECTANGLE strong-bar-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 56 BY 1.
+
+DEFINE RECTANGLE strong-bar-2
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE i-slider AS INTEGER INITIAL 4 
      VIEW-AS SLIDER MIN-VALUE 4 MAX-VALUE 60 HORIZONTAL NO-CURRENT-VALUE 
@@ -231,12 +277,15 @@ DEFINE FRAME F-Main
      t-minmax AT ROW 2.88 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
      i-length AT ROW 4.38 COL 10.43 COLON-ALIGNED WIDGET-ID 4
      t-copy AT ROW 10.88 COL 11.86 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     t-strong AT ROW 14.85 COL 21.43 COLON-ALIGNED NO-LABEL WIDGET-ID 48
      RECT-1 AT ROW 1.35 COL 1.86 WIDGET-ID 12
      RECT-13 AT ROW 3.96 COL 1.86 WIDGET-ID 30
+     strong-bar-1 AT ROW 14.65 COL 2 WIDGET-ID 44
+     strong-bar-2 AT ROW 14.65 COL 2 WIDGET-ID 46
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 58.14 BY 13.88 WIDGET-ID 100.
+         SIZE 58.14 BY 16.58 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -256,7 +305,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW pass-generator ASSIGN
          HIDDEN             = YES
          TITLE              = "Passwort-Generator"
-         HEIGHT             = 14.15
+         HEIGHT             = 17.73
          WIDTH              = 58.86
          MAX-HEIGHT         = 21.58
          MAX-WIDTH          = 80
@@ -317,6 +366,8 @@ ASSIGN
 ASSIGN 
        t-minmax:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN t-strong IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        t-title:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -431,6 +482,18 @@ DO:
          btn-generate:LABEL = tt-lang.hf-btn-generate
          btn-copy:LABEL = tt-lang.hf-btn-copy
          btn-clear:LABEL = tt-lang.hf-btn-clear.
+      CASE hf-strong-lvl:  
+         WHEN 1 THEN 
+            ASSIGN t-strong:SCREEN-VALUE = tt-lang.hf-very-weak. 
+         WHEN 2 THEN 
+            ASSIGN t-strong:SCREEN-VALUE = tt-lang.hf-weak.
+         WHEN 3 THEN            
+            ASSIGN t-strong:SCREEN-VALUE = tt-lang.hf-medium.
+         WHEN 4 THEN 
+            ASSIGN t-strong:SCREEN-VALUE = tt-lang.hf-strong.
+         WHEN 5 THEN 
+            ASSIGN t-strong:SCREEN-VALUE = tt-lang.hf-very-strong.
+   END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,8 +590,9 @@ PROCEDURE enable_UI :
   DISPLAY i-lang i-slider i-choice-az i-choice-09 i-choice-symb i-result t-title 
           t-minmax i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
-  ENABLE RECT-1 RECT-13 i-lang i-slider i-choice-az btn-exit i-choice-09 
-         btn-generate i-choice-symb i-result t-title t-minmax i-length t-copy 
+  ENABLE RECT-1 RECT-13 strong-bar-1 strong-bar-2 i-lang i-slider i-choice-az 
+         btn-exit i-choice-09 btn-generate i-choice-symb i-result t-title 
+         t-minmax i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW pass-generator.
@@ -570,6 +634,7 @@ PROCEDURE p-generator :
 DO WITH FRAME {&FRAME-NAME}:
    DEF VAR hf-i     AS INT NO-UNDO.
    DEF VAR hf-temp  AS CHAR NO-UNDO. 
+   DYNAMIC-FUNCTION('password-lvl':U).
    ASSIGN hf-temp = "abcdefghijklmnopqrstuvwxyz".
    
    IF i-choice-az:CHECKED = TRUE THEN
@@ -589,16 +654,101 @@ DO WITH FRAME {&FRAME-NAME}:
    //Enlarge the main frame
    ASSIGN             
       RECT-1:HEIGHT = 12.80
-      pass-generator:HEIGHT = 13.5.
+      pass-generator:HEIGHT = 16.5.
    // Button Copy enable
    ASSIGN 
       t-copy:HIDDEN = TRUE
       btn-clear:HIDDEN = FALSE.
    ENABLE btn-copy WITH FRAME {&FRAME-NAME}.
    ENABLE btn-clear WITH FRAME {&FRAME-NAME}.
-   i-result:SENSITIVE = TRUE.  
+   ENABLE t-strong WITH FRAME {&FRAME-NAME}.
+   i-result:SENSITIVE = TRUE.
+   
+   //w 56 / 5 = 11,2
+   
+   CASE password-lvl(i-result:SCREEN-VALUE):  
+      WHEN 1 THEN DO: 
+         strong-bar-2:WIDTH = 11.2.
+         strong-bar-2:BGCOLOR =  12.
+         t-strong:HIDDEN = FALSE. 
+         t-strong:SCREEN-VALUE = tt-lang.hf-very-weak. 
+         t-strong:BGCOLOR = ?.
+      END.
+      WHEN 2 THEN DO:
+         strong-bar-2:WIDTH = 11.2 * 2.
+         strong-bar-2:BGCOLOR =  6.   
+         t-strong:HIDDEN = FALSE. 
+         t-strong:SCREEN-VALUE = tt-lang.hf-weak.  
+         t-strong:BGCOLOR = ?.
+      END.
+      WHEN 3 THEN DO:
+         strong-bar-2:WIDTH = 11.2 * 3.
+         strong-bar-2:BGCOLOR =  14.  
+         t-strong:HIDDEN = FALSE.            
+         t-strong:SCREEN-VALUE = tt-lang.hf-medium.
+         t-strong:BGCOLOR =  14.
+      END.
+      WHEN 4 THEN DO:
+         strong-bar-2:WIDTH = 11.2 * 4.
+         strong-bar-2:BGCOLOR =  10.   
+         t-strong:HIDDEN = FALSE. 
+         t-strong:SCREEN-VALUE = tt-lang.hf-strong.
+         t-strong:BGCOLOR =  10.
+      END.
+      WHEN 5 THEN DO: 
+         strong-bar-2:WIDTH = 11.2 * 5.
+         strong-bar-2:BGCOLOR =  2.   
+         t-strong:HIDDEN = FALSE.
+         t-strong:SCREEN-VALUE = tt-lang.hf-very-strong.
+         t-strong:BGCOLOR = 2.
+      END.
+   END CASE.
+   
 END.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION password-lvl pass-generator 
+FUNCTION password-lvl RETURNS INTEGER
+  ( INPUT pass AS CHAR) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+   DEF VAR strength AS INT NO-UNDO INIT 0.     
+   DEFINE VARIABLE regexp AS CLASS Regex NO-UNDO. 
+   
+   regexp = NEW Regex("[a-z]").
+   /* V‚rifier si le mot de passe contient des caractŠres en minuscules */
+   IF regexp:IsMatch(pass) THEN
+      ASSIGN strength = strength + 1.   
+   
+   regexp = NEW Regex("[A-Z]").  
+   /* V‚rifier si le mot de passe contient des caractŠres en majuscules */
+   IF regexp:IsMatch(pass) THEN
+      ASSIGN strength = strength + 1.
+   
+   regexp = NEW Regex("[\d]").  
+   /* V‚rifier si le mot de passe contient des chiffres */
+   IF regexp:IsMatch(pass) THEN
+      ASSIGN strength = strength + 1.    
+   
+   regexp = NEW Regex("[!@#$%^&*()_+~~`|~}~{~[\~]~\:;?><,./-=]").  
+   /* V‚rifier si le mot de passe contient des caractŠres sp‚ciaux */
+   IF regexp:IsMatch(pass) THEN
+      ASSIGN strength = strength + 1.
+
+   /* V‚rifier si le mot de passe a une longueur suffisante */
+   IF LENGTH(pass) > 8 THEN
+      ASSIGN strength = strength + 1.
+
+   RETURN strength.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
