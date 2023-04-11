@@ -82,7 +82,7 @@ DEFINE BUTTON btn-generate
      LABEL "Generate" 
      SIZE 15 BY 1.12.
 
-DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER 
+DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER INITIAL ? 
      VIEW-AS EDITOR NO-BOX
      SIZE 53 BY 2.15
      FONT 0 DROP-TARGET NO-UNDO.
@@ -268,6 +268,12 @@ DO:
    ASSIGN 
       btn-copy:HIDDEN = TRUE
       t-copy:HIDDEN = FALSE.
+   WAIT-FOR WINDOW-CLOSE OF CURRENT-WINDOW OR CHOOSE OF btn-generate
+   FOCUS btn-exit PAUSE 2. 
+   ASSIGN 
+      btn-copy:HIDDEN = FALSE
+      t-copy:HIDDEN = TRUE.     
+   ENABLE btn-copy WITH FRAME {&FRAME-NAME}.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +303,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME i-length
 &Scoped-define SELF-NAME i-slider
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL i-slider pass-generator
 ON VALUE-CHANGED OF i-slider IN FRAME DEFAULT-FRAME
