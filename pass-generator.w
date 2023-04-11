@@ -52,7 +52,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-13 i-slider i-choice-az btn-exit ~
-i-choice-09 btn-generate i-choice-symb i-result i-length t-copy 
+i-choice-09 btn-generate i-choice-symb btn-clear i-result i-length t-copy 
 &Scoped-Define DISPLAYED-OBJECTS i-slider i-choice-az i-choice-09 ~
 i-choice-symb i-result i-length t-copy 
 
@@ -70,6 +70,10 @@ i-choice-symb i-result i-length t-copy
 DEFINE VAR pass-generator AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn-clear 
+     LABEL "Clear" 
+     SIZE 9 BY .81.
+
 DEFINE BUTTON btn-copy 
      LABEL "Copy" 
      SIZE 9 BY .81.
@@ -84,7 +88,7 @@ DEFINE BUTTON btn-generate
 
 DEFINE {&NEW} SHARED VARIABLE i-result AS CHARACTER INITIAL ? 
      VIEW-AS EDITOR NO-BOX
-     SIZE 53 BY 2.15
+     SIZE 53 BY 1.77
      FONT 0 DROP-TARGET NO-UNDO.
 
 DEFINE VARIABLE i-length AS INTEGER FORMAT "->9":U INITIAL 4 
@@ -98,7 +102,7 @@ DEFINE VARIABLE t-copy AS CHARACTER FORMAT "X(256)":U INITIAL "Text in Zwischena
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 56 BY 13.12.
+     SIZE 56 BY 13.1.
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -135,6 +139,7 @@ DEFINE FRAME F-Main
      btn-generate AT ROW 9.19 COL 41 WIDGET-ID 14
      i-choice-symb AT ROW 9.23 COL 3 WIDGET-ID 10
      btn-copy AT ROW 10.81 COL 4 WIDGET-ID 20
+     btn-clear AT ROW 10.81 COL 53.5 RIGHT-ALIGNED WIDGET-ID 34
      i-result AT ROW 11.88 COL 3 NO-LABEL WIDGET-ID 22
      i-length AT ROW 4.38 COL 7.29 COLON-ALIGNED WIDGET-ID 4
      t-copy AT ROW 10.88 COL 11.86 COLON-ALIGNED NO-LABEL WIDGET-ID 26
@@ -202,6 +207,11 @@ IF NOT pass-generator:LOAD-ICON("adeicon/comp%.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btn-clear IN FRAME F-Main
+   ALIGN-R                                                              */
+ASSIGN 
+       btn-clear:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR BUTTON btn-copy IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -259,6 +269,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn-clear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-clear pass-generator
+ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear */
+DO:
+  RUN p-Clear.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy pass-generator
 ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy */
@@ -296,7 +317,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-generate pass-generator
 ON CHOOSE OF btn-generate IN FRAME F-Main /* Generate */
 DO:
-  RUN p-generator.
+  RUN p-Generator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,8 +360,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  ASSIGN t-copy:HIDDEN = TRUE.
+   RUN enable_UI.
+   ASSIGN 
+      btn-copy:HIDDEN = TRUE
+      t-copy:HIDDEN = TRUE.
+   // reduce the main frame
+   ASSIGN
+      RECT-1:HEIGHT = 9.3
+      pass-generator:HEIGHT = 9.8.
+   
+   
+   
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -385,10 +415,33 @@ PROCEDURE enable_UI :
           t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   ENABLE RECT-1 RECT-13 i-slider i-choice-az btn-exit i-choice-09 btn-generate 
-         i-choice-symb i-result i-length t-copy 
+         i-choice-symb btn-clear i-result i-length t-copy 
       WITH FRAME F-Main IN WINDOW pass-generator.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW pass-generator.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE p-Clear pass-generator 
+PROCEDURE p-Clear :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+   ASSIGN 
+      btn-clear:HIDDEN = TRUE 
+      btn-copy:HIDDEN = TRUE
+      t-copy:HIDDEN = TRUE
+      i-result:SCREEN-VALUE = "".
+   // reduce the main frame
+   ASSIGN
+      RECT-1:HEIGHT = 9.3
+      pass-generator:HEIGHT = 9.8.
+END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,9 +472,15 @@ DO WITH FRAME {&FRAME-NAME}:
    DO hf-i = 1 TO INTEGER(i-length:SCREEN-VALUE):
       ASSIGN i-result:SCREEN-VALUE = i-result:SCREEN-VALUE +  SUBSTRING(hf-temp, RANDOM(1, LENGTH(hf-temp)), 1).           
    END.
-    
+   
+   //Enlarge the main frame
+   ASSIGN    
+      RECT-1:HEIGHT = 12.80
+      pass-generator:HEIGHT = 13.5.
    // Button Copy enable
-   ASSIGN t-copy:HIDDEN = TRUE.
+   ASSIGN 
+      t-copy:HIDDEN = TRUE
+      btn-clear:HIDDEN = FALSE.
    ENABLE btn-copy WITH FRAME {&FRAME-NAME}.
    i-result:SENSITIVE = TRUE.  
 END.
