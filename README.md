@@ -6,6 +6,7 @@
 
 ## Passwort-Generator
 
+### Version: 1.0.0
 
 # FILE: 
 Mask => passwort-generator.w
@@ -21,11 +22,11 @@ create mask for the Procedure.
 ## To-Do
 
 - [x]  - create mask
-- [ ]  - creat widget input
-- [ ]  - creat procedure generator
-- [ ]  - create widget output
-- [ ]  - test
-- [ ]  - complate the readme.md
+- [x]  - creat widget input
+- [x]  - creat procedure generator
+- [x]  - create widget output
+- [x]  - test
+- [x]  - complate the readme.md
 ## Tech Stack
 
 **Client:** Progress Openedge 4GL ABL. 
